@@ -17,3 +17,4 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
 external-api:
   exchange-rate-api: https://api.riksbank.se/swea/v1
+  exchange-rate-key: ## KEY GOES HERE
