@@ -1,11 +1,14 @@
 package com.example.currencyexchange.service;
 
 import com.example.currencyexchange.Exceptions.ConversionNotFoundException;
+import com.example.currencyexchange.Exceptions.DuplicateExchangeRateException;
 import com.example.currencyexchange.entity.ExchangeRate;
 import com.example.currencyexchange.enums.CurrencyCode;
 import com.example.currencyexchange.integration.RiksBankenApiClient;
 import com.example.currencyexchange.repository.ExchangeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,23 +23,25 @@ public class ExchangeRateService {
     private final ExchangeRepository exchangeRepository;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
 
-    public BigDecimal getExchangeRate(final BigDecimal amount,
-                                      final CurrencyCode fromCurrency,
-                                      final CurrencyCode toCurrency) {
+    public String getExchangeRate(final BigDecimal amount,
+                                  final CurrencyCode fromCurrency,
+                                  final CurrencyCode toCurrency)  {
         if (!initialized.get()) {
             updateDailyExchangeRates();
         }
 
         if (fromCurrency.equals(toCurrency)) {
-            return amount;
+            return String.format("%s %s", amount, toCurrency);
         }
 
         try {
-            return amount.multiply(exchangeRepository.findByFromCurrencyAndToCurrencyAndLocalDate(
-                            fromCurrency,
-                            toCurrency,
-                            LocalDate.now())
-                    .amount());
+            return String.format("%s %s",
+                    amount.multiply(exchangeRepository.findByFromCurrencyAndToCurrencyAndLocalDate(
+                                    fromCurrency,
+                                    toCurrency,
+                                    LocalDate.now())
+                            .amount()),
+                    toCurrency);
         } catch (ConversionNotFoundException e) {
             throw new ConversionNotFoundException("Conversion not found");
         }
@@ -50,16 +55,17 @@ public class ExchangeRateService {
         for (CurrencyCode fromCurrency : CurrencyCode.values()) {
             for (CurrencyCode toCurrency : CurrencyCode.values()) {
                 if (fromCurrency.equals(toCurrency)) continue;
-                if (exchangeRepository.findByFromCurrencyAndToCurrencyAndLocalDate(
-                        fromCurrency, toCurrency, LocalDate.now()) == null) continue;
-
                 BigDecimal exchangeRate = riksBankenApiClient.getExchangeRateForDate(fromCurrency, toCurrency, getLatestBankDay());
-                exchangeRepository.save(ExchangeRate.builder()
-                        .fromCurrency(fromCurrency)
-                        .toCurrency(toCurrency)
-                        .localDate(LocalDate.now())
-                        .amount(exchangeRate)
-                        .build());
+                try {
+                    exchangeRepository.save(ExchangeRate.builder()
+                            .fromCurrency(fromCurrency)
+                            .toCurrency(toCurrency)
+                            .localDate(LocalDate.now())
+                            .amount(exchangeRate)
+                            .build());
+                } catch (Exception e) {
+                    throw new DuplicateExchangeRateException("The daily Exchange Rates are already collected.");
+                }
             }
             initialized.set(true);
         }

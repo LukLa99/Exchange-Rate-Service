@@ -7,5 +7,4 @@ public enum CurrencyCode {
     SEKETT,
     SEKEURPMI,
     SEKUSDPMI
-
 }

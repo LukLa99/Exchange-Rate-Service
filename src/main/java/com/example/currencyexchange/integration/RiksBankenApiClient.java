@@ -1,5 +1,6 @@
 package com.example.currencyexchange.integration;
 
+import com.example.currencyexchange.Exceptions.NoBankDaysException;
 import com.example.currencyexchange.enums.CurrencyCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
@@ -33,7 +34,7 @@ public class RiksBankenApiClient {
                         .build();
     }
 
-    //Hämtar de sju senaste bankdagarna för att hitta den senaste BankDagen
+    //Hämtar de sju senaste bankdagarna för att hitta den senaste bank dagen
     public LocalDate getLatestBankDay() {
         LocalDate fromDate = LocalDate.now().minusDays(7);
         JsonNode jsonNodes = webClient.get().uri(uriBuilder -> uriBuilder
@@ -44,17 +45,19 @@ public class RiksBankenApiClient {
                 .block();
 
         if (jsonNodes.isNull() || !jsonNodes.isArray() || jsonNodes.isEmpty()) {
-            throw new IllegalStateException("Inga Bankdagar kuna hämtas.");
+            throw new NoBankDaysException("Inga Bankdagar kuna hämtas.");
         }
 
         return StreamSupport.stream(jsonNodes.spliterator(), false)
                 .filter(node -> node.get("swedishBankday").asBoolean(false))
                 .map(node -> LocalDate.parse(node.get("calendarDate").asText()))
                 .max(Comparator.naturalOrder())
-                .orElseThrow(() -> new IllegalStateException("Inga bankdagar återfanns i listan"));
+                .orElseThrow(() -> new NoBankDaysException("Inga bankdagar återfanns i listan"));
     }
 
+
     public BigDecimal getExchangeRateForDate(CurrencyCode fromCurrency, CurrencyCode toCurrency, LocalDate toDate) {
+        sleepIFApiKeyNotAvailable();
         JsonNode jsonNode = webClient.get().uri(uriBuilder -> uriBuilder
                         .path("/CrossRates/{from}/{to}/{date}")
                         .build(fromCurrency,
@@ -65,5 +68,20 @@ public class RiksBankenApiClient {
                 .block();
 
         return new BigDecimal(jsonNode.get(0).get("value").asText());
+    }
+
+    /**
+     * Om användaren inte definierar en API nyckel kommer applicationen rate-limitas,
+     * För att undgå detta sätter vi en Thread.sleep ifall att användaren inte matat in en nyckel
+     * Detta kommer att låta oss hämta dagens kurser utan att nå vårt maxtak av anrop per minut.
+     */
+    private void sleepIFApiKeyNotAvailable() {
+        if (riksBankApiKey.isEmpty()) {
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Try again");
+            }
+        }
     }
 }

@@ -18,11 +18,11 @@ public class ExchangeRateController {
     private final ExchangeRateService exchangeRateService;
 
     @GetMapping("/get/{amount}/{fromCurrency}/{toCurrency}")
-    public BigDecimal getExchangeRates(@PathVariable final BigDecimal amount,
-                                       @PathVariable final CurrencyCode fromCurrency,
-                                       @PathVariable final CurrencyCode toCurrency) {
+    public ResponseEntity getExchangeRates(@PathVariable final BigDecimal amount,
+                                           @PathVariable final CurrencyCode fromCurrency,
+                                           @PathVariable final CurrencyCode toCurrency) {
         log.info("Request received to convert amount {} from {} to {} ", amount, fromCurrency, toCurrency);
-        return exchangeRateService.getExchangeRate(amount, fromCurrency, toCurrency);
+        return ResponseEntity.ok(exchangeRateService.getExchangeRate(amount, fromCurrency, toCurrency));
     }
 
 
