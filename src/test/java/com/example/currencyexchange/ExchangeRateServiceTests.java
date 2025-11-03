@@ -35,8 +35,8 @@ class ExchangeRateServiceTests {
     @Test
     void testGetExchangeRate_sameCurrency_returnsSameAmount() {
         BigDecimal amount = BigDecimal.valueOf(100);
-        String result = exchangeRateService.getExchangeRate(amount, CurrencyCode.SEKETT, CurrencyCode.SEKETT);
-        assertEquals("100 SEKETT", result);
+        String result = exchangeRateService.getExchangeRate(amount, CurrencyCode.SEK, CurrencyCode.SEK);
+        assertEquals("100 SEK", result);
     }
 
     @Test
@@ -44,8 +44,8 @@ class ExchangeRateServiceTests {
         BigDecimal amount = BigDecimal.valueOf(100);
         BigDecimal rate = BigDecimal.valueOf(10);
         ExchangeRate mockRate = ExchangeRate.builder()
-                .fromCurrency(CurrencyCode.SEKETT)
-                .toCurrency(CurrencyCode.SEKUSDPMI)
+                .fromCurrency(CurrencyCode.SEK)
+                .toCurrency(CurrencyCode.USD)
                 .amount(rate)
                 .localDate(LocalDate.now())
                 .build();
@@ -53,8 +53,8 @@ class ExchangeRateServiceTests {
         when(exchangeRepository.findByFromCurrencyAndToCurrencyAndLocalDate(
                 any(), any(), any())).thenReturn(mockRate);
 
-        String result = exchangeRateService.getExchangeRate(amount, CurrencyCode.SEKETT, CurrencyCode.SEKUSDPMI);
-        assertEquals("1000 SEKUSDPMI", result);
+        String result = exchangeRateService.getExchangeRate(amount, CurrencyCode.SEK, CurrencyCode.USD);
+        assertEquals("1000 USD", result);
     }
 
     @Test
@@ -63,7 +63,7 @@ class ExchangeRateServiceTests {
                 .thenThrow(new ConversionNotFoundException("Not found"));
 
         assertThrows(ConversionNotFoundException.class, () ->
-                exchangeRateService.getExchangeRate(BigDecimal.ONE, CurrencyCode.SEKETT, CurrencyCode.SEKUSDPMI)
+                exchangeRateService.getExchangeRate(BigDecimal.ONE, CurrencyCode.SEK, CurrencyCode.USD)
         );
     }
 

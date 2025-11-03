@@ -56,12 +56,12 @@ public class RiksBankenApiClient {
     }
 
 
-    public BigDecimal getExchangeRateForDate(CurrencyCode fromCurrency, CurrencyCode toCurrency, LocalDate toDate) {
+    public BigDecimal getExchangeRateForDate(final CurrencyCode fromCurrency, final CurrencyCode toCurrency, final LocalDate toDate) {
         sleepIFApiKeyNotAvailable();
         JsonNode jsonNode = webClient.get().uri(uriBuilder -> uriBuilder
                         .path("/CrossRates/{from}/{to}/{date}")
-                        .build(fromCurrency,
-                                toCurrency,
+                        .build(fromCurrency.getCode(),
+                                toCurrency.getCode(),
                                 toDate))
                 .retrieve()
                 .bodyToMono(JsonNode.class)
@@ -78,7 +78,7 @@ public class RiksBankenApiClient {
     private void sleepIFApiKeyNotAvailable() {
         if (riksBankApiKey.isEmpty()) {
             try {
-                Thread.sleep(20000);
+                Thread.sleep(25000);
             } catch (InterruptedException e) {
                 throw new RuntimeException("Try again");
             }
