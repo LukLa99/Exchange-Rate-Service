@@ -7,6 +7,9 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  sql:
+    init:
+      mode: always
   h2:
     console:
       enabled: true
@@ -17,4 +20,4 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
 external-api:
   exchange-rate-api: https://api.riksbank.se/swea/v1
-  exchange-rate-key: ## KEY GOES HERE
+  exchange-rate-key: ## CODE GOES HERE

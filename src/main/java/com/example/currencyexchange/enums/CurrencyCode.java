@@ -1,4 +1,4 @@
-package com.example.valutavaxling.enums;
+package com.example.currencyexchange.enums;
 
 /**
  * These are the available currency-codes for the project.

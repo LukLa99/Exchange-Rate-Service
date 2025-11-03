@@ -1,6 +1,6 @@
-package com.example.valutavaxling.utils;
+package com.example.currencyexchange.utils;
 
-import com.example.valutavaxling.service.ExchangeRateService;
+import com.example.currencyexchange.service.ExchangeRateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

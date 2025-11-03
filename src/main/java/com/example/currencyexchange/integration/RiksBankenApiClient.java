@@ -1,6 +1,6 @@
-package com.example.valutavaxling.integration;
+package com.example.currencyexchange.integration;
 
-import com.example.valutavaxling.enums.CurrencyCode;
+import com.example.currencyexchange.enums.CurrencyCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.StreamSupport;
@@ -53,7 +54,7 @@ public class RiksBankenApiClient {
                 .orElseThrow(() -> new IllegalStateException("Inga bankdagar återfanns i listan"));
     }
 
-    public Double getExchangeRateForDate(CurrencyCode fromCurrency, CurrencyCode toCurrency, LocalDate toDate) {
+    public BigDecimal getExchangeRateForDate(CurrencyCode fromCurrency, CurrencyCode toCurrency, LocalDate toDate) {
         JsonNode jsonNode = webClient.get().uri(uriBuilder -> uriBuilder
                         .path("/CrossRates/{from}/{to}/{date}")
                         .build(fromCurrency,
@@ -63,6 +64,6 @@ public class RiksBankenApiClient {
                 .bodyToMono(JsonNode.class)
                 .block();
 
-        return jsonNode.get(0).get("value").asDouble();
+        return new BigDecimal(jsonNode.get(0).get("value").asText());
     }
 }

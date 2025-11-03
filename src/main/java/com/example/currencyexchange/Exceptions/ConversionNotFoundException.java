@@ -1,4 +1,4 @@
-package com.example.valutavaxling.Exceptions;
+package com.example.currencyexchange.Exceptions;
 
 public class ConversionNotFoundException extends RuntimeException {
     public ConversionNotFoundException(String message) {
