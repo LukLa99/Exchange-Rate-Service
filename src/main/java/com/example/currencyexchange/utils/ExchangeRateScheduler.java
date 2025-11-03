@@ -13,7 +13,7 @@ public class ExchangeRateScheduler {
     private final ExchangeRateService exchangeRateService;
 
     @Scheduled(cron = "0 15 16 * * *", zone = "Europe/Stockholm")
-    public void fetchDailyExchangeRates() throws InterruptedException {
+    public void fetchDailyExchangeRates() {
         log.info("Fetching exchange rate data");
         exchangeRateService.updateDailyExchangeRates();
     }

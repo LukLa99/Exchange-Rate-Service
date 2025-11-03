@@ -33,14 +33,14 @@ class ExchangeRateServiceTests {
     private ExchangeRateService exchangeRateService;
 
     @Test
-    void testGetExchangeRate_sameCurrency_returnsSameAmount() throws InterruptedException {
+    void testGetExchangeRate_sameCurrency_returnsSameAmount() {
         BigDecimal amount = BigDecimal.valueOf(100);
         String result = exchangeRateService.getExchangeRate(amount, CurrencyCode.SEKETT, CurrencyCode.SEKETT);
         assertEquals("100 SEKETT", result);
     }
 
     @Test
-    void testGetExchangeRate_validConversion_returnsConvertedAmount() throws InterruptedException {
+    void testGetExchangeRate_validConversion_returnsConvertedAmount() {
         BigDecimal amount = BigDecimal.valueOf(100);
         BigDecimal rate = BigDecimal.valueOf(10);
         ExchangeRate mockRate = ExchangeRate.builder()
@@ -68,7 +68,7 @@ class ExchangeRateServiceTests {
     }
 
     @Test
-    void testUpdateDailyExchangeRates_savesExchangeRatesSuccessfully() throws InterruptedException {
+    void testUpdateDailyExchangeRates_savesExchangeRatesSuccessfully() {
         when(riksBankenApiClient.getLatestBankDay()).thenReturn(LocalDate.now());
         when(riksBankenApiClient.getExchangeRateForDate(any(), any(), any())).thenReturn(BigDecimal.valueOf(10));
         when(exchangeRepository.findByFromCurrencyAndToCurrencyAndLocalDate(any(), any(), any())).thenReturn(null);
@@ -79,7 +79,7 @@ class ExchangeRateServiceTests {
     }
 
     @Test
-    void testUpdateDailyExchangeRates_duplicateKey_throwsDuplicateExchangeRateException() throws InterruptedException {
+    void testUpdateDailyExchangeRates_duplicateKey_throwsDuplicateExchangeRateException() {
         when(riksBankenApiClient.getLatestBankDay()).thenReturn(LocalDate.now());
         when(riksBankenApiClient.getExchangeRateForDate(any(), any(), any())).thenReturn(BigDecimal.valueOf(10));
         when(exchangeRepository.findByFromCurrencyAndToCurrencyAndLocalDate(any(), any(), any())).thenReturn(null);

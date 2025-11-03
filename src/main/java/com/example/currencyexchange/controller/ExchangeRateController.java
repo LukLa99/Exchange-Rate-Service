@@ -18,7 +18,7 @@ public class ExchangeRateController {
     private final ExchangeRateService exchangeRateService;
 
     @GetMapping("/get/{amount}/{fromCurrency}/{toCurrency}")
-    public ResponseEntity getExchangeRates(@PathVariable final BigDecimal amount,
+    public ResponseEntity<String> getExchangeRates(@PathVariable final BigDecimal amount,
                                            @PathVariable final CurrencyCode fromCurrency,
                                            @PathVariable final CurrencyCode toCurrency) {
         log.info("Request received to convert amount {} from {} to {} ", amount, fromCurrency, toCurrency);
@@ -29,7 +29,7 @@ public class ExchangeRateController {
     /**
      * This API is used to collect the daily Exchange Rates from the external API that Riksbanken provide.
      *
-     * @returns a ResponsEntity detailing whether the request was successful.
+     * @return a ResponsEntity detailing whether the request was successful.
      */
     @PostMapping("/update")
     public ResponseEntity<String> getExchangeRates() {

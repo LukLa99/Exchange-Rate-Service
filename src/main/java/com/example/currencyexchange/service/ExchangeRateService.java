@@ -7,8 +7,6 @@ import com.example.currencyexchange.enums.CurrencyCode;
 import com.example.currencyexchange.integration.RiksBankenApiClient;
 import com.example.currencyexchange.repository.ExchangeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -67,8 +65,8 @@ public class ExchangeRateService {
                     throw new DuplicateExchangeRateException("The daily Exchange Rates are already collected.");
                 }
             }
-            initialized.set(true);
         }
+        initialized.set(true);
     }
 }
 
